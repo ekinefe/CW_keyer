@@ -2,14 +2,14 @@
 const int buzzerPin = 9;      // The pin connected to the buzzer
 const int buttonDot = 2;      // The pin for the dot button
 const int buttonDash = 3;     // The pin for the dash button
-const int powerLed = 8;
+const int powerLed = 8;     // The pin for power led
 const int potPin = A0;        // The pin connected to the potentiometer (analog input)
 
 // Define default Morse code timing
-int dotDuration = 200;  // Duration of a dot in milliseconds
-int dashDuration = 600; // Duration of a dash in milliseconds
+int dotDuration = 52;  // Duration of a dot in milliseconds (200 ms recomanded)
+int dashDuration = 156; // Duration of a dash in milliseconds (600 ms recomanded)
 const int gapDuration = 150;  // Short gap between signals
-y
+
 // Define buzzer frequencies
 const int DotHz = 800;  // Frequency for dot sound
 const int DashHz = 800; // Frequency for dash sound
