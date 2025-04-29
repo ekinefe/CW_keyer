@@ -1,59 +1,78 @@
 // Define pin connections
-const int buzzerPin = 9;
-const int buttonDot = 2;
-const int buttonDash = 3;
+const int buzzerPin = 9;      // The pin connected to the buzzer
+const int buttonDot = 2;      // The pin for the dot button
+const int buttonDash = 3;     // The pin for the dash button
+const int powerLed = 8;     // The pin for power led
+const int potPin = A0;        // The pin connected to the potentiometer (analog input)
 
-// Define Morse code timing
-const int dotDuration = 200;
-const int dashDuration = 600;
-const int gapDuration = 150;
+// Define default Morse code timing
+int dotDuration = 52;  // Duration of a dot in milliseconds (200 ms recomanded)
+int dashDuration = 156; // Duration of a dash in milliseconds (600 ms recomanded)
+const int gapDuration = 150;  // Short gap between signals
 
 // Define buzzer frequencies
-const int DotHz = 800;
-const int DashHz = 800;
 
-// Buzzer timing variables
-bool buzzerActive = false;
-unsigned long buzzerStartTime = 0;
-int currentDuration = 0;
+const int DotHz = 800;  // Frequency for dot sound
+const int DashHz = 800; // Frequency for dash sound
+
+// Timing variables
+bool buzzerActive = false;       // Tracks if the buzzer is currently active
+unsigned long buzzerStartTime = 0; // Stores start time for buzzer
+int currentDuration = 0;         // Stores duration of the current sound
 
 void setup() {
+    digitalWrite(powerLed, HIGH);
     pinMode(buzzerPin, OUTPUT);
     pinMode(buttonDot, INPUT_PULLUP);
     pinMode(buttonDash, INPUT_PULLUP);
-
-    Serial.begin(9600);  // Start serial communication
-    printMorseTable();   // Print Morse code table at startup
+    Serial.begin(9600); // Initialize serial communication for debugging
 }
 
 void loop() {
-    unsigned long currentTime = millis();
+    unsigned long currentTime = millis(); // Get the current time
 
+    // Read the potentiometer value (0 to 1023) and map it to a desired range for speed
+    int potValue = analogRead(potPin);  // Read potentiometer value (0 to 1023)
+    int speedFactor = map(potValue, 0, 1023, 100, 1000); // Map the potentiometer to a suitable range for speed
+
+    // Adjust dot and dash duration based on the potentiometer value
+    dotDuration = speedFactor;  // Update dot duration
+    dashDuration = speedFactor * 3;  // Update dash duration (generally dash is longer than dot)
+
+    // Debugging output to check the mapped values
+    // Serial.print("Potentiometer value: ");
+    // Serial.print(potValue);
+    // Serial.print(" | Speed Factor: ");
+    // Serial.println(speedFactor);
+
+    // Check if dot button is pressed and buzzer is not already active
     if (digitalRead(buttonDot) == LOW && !buzzerActive) {
-        startDot();
+        startDot(currentTime);
     }
 
+    // Check if dash button is pressed and buzzer is not already active
     if (digitalRead(buttonDash) == LOW && !buzzerActive) {
-        startDash();
+        startDash(currentTime);
     }
 
+    // Turn off buzzer after the duration has elapsed
     if (buzzerActive && currentTime - buzzerStartTime >= currentDuration) {
         stopBuzzer();
     }
 }
 
 // Function to start a dot signal
-void startDot() {
+void startDot(unsigned long currentTime) {
     buzzerActive = true;
-    buzzerStartTime = millis();  // Get current time dynamically
+    buzzerStartTime = currentTime;
     currentDuration = dotDuration;
     tone(buzzerPin, DotHz);
 }
 
 // Function to start a dash signal
-void startDash() {
+void startDash(unsigned long currentTime) {
     buzzerActive = true;
-    buzzerStartTime = millis();  // Get current time dynamically
+    buzzerStartTime = currentTime;
     currentDuration = dashDuration;
     tone(buzzerPin, DashHz);
 }
@@ -62,42 +81,4 @@ void startDash() {
 void stopBuzzer() {
     noTone(buzzerPin);
     buzzerActive = false;
-}
-
-// Function to print the full Morse code table to the Serial Monitor
-void printMorseTable() {
-    Serial.println("\nMorse Code Reference Table:");
-    Serial.println("----------------------------");
-
-    Serial.println("\nLetters A-Z:");
-    Serial.println("A  -> .-");    Serial.println("B  -> -...");
-    Serial.println("C  -> -.-.");  Serial.println("D  -> -..");
-    Serial.println("E  -> .");     Serial.println("F  -> ..-.");
-    Serial.println("G  -> --.");   Serial.println("H  -> ....");
-    Serial.println("I  -> ..");    Serial.println("J  -> .---");
-    Serial.println("K  -> -.-");   Serial.println("L  -> .-..");
-    Serial.println("M  -> --");    Serial.println("N  -> -.");
-    Serial.println("O  -> ---");   Serial.println("P  -> .--.");
-    Serial.println("Q  -> --.-");  Serial.println("R  -> .-.");
-    Serial.println("S  -> ...");   Serial.println("T  -> -");
-    Serial.println("U  -> ..-");   Serial.println("V  -> ...-");
-    Serial.println("W  -> .--");   Serial.println("X  -> -..-");
-    Serial.println("Y  -> -.--");  Serial.println("Z  -> --..");
-
-    Serial.println("\nNumbers 0-9:");
-    Serial.println("0  -> -----"); Serial.println("1  -> .----");
-    Serial.println("2  -> ..---"); Serial.println("3  -> ...--");
-    Serial.println("4  -> ....-"); Serial.println("5  -> .....");
-    Serial.println("6  -> -...."); Serial.println("7  -> --...");
-    Serial.println("8  -> ---.."); Serial.println("9  -> ----.");
-
-    Serial.println("\nCommon Symbols:");
-    Serial.println(".  -> .-.-.-"); Serial.println(",  -> --..--");
-    Serial.println("?  -> ..--.."); Serial.println("!  -> -.-.--");
-    Serial.println("/  -> -..-.");  Serial.println("() -> -.--.-");
-    Serial.println("&  -> .-...");  Serial.println(":  -> ---...");
-    Serial.println("=  -> -...-");
-
-    Serial.println("----------------------------");
-    Serial.println("Morse code table printed successfully!");
 }

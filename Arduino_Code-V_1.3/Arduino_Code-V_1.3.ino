@@ -11,6 +11,7 @@ int dashDuration = 156; // Duration of a dash in milliseconds (600 ms recomanded
 const int gapDuration = 150;  // Short gap between signals
 
 // Define buzzer frequencies
+
 const int DotHz = 800;  // Frequency for dot sound
 const int DashHz = 800; // Frequency for dash sound
 
@@ -39,10 +40,10 @@ void loop() {
     dashDuration = speedFactor * 3;  // Update dash duration (generally dash is longer than dot)
 
     // Debugging output to check the mapped values
-    Serial.print("Potentiometer value: ");
-    Serial.print(potValue);
-    Serial.print(" | Speed Factor: ");
-    Serial.println(speedFactor);
+    // Serial.print("Potentiometer value: ");
+    // Serial.print(potValue);
+    // Serial.print(" | Speed Factor: ");
+    // Serial.println(speedFactor);
 
     // Check if dot button is pressed and buzzer is not already active
     if (digitalRead(buttonDot) == LOW && !buzzerActive) {
