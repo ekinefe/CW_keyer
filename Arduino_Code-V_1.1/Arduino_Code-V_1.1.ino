@@ -6,42 +6,46 @@ const int buttonDash = 3;     // The pin for the dash button
 // Define Morse code timing
 const int dotDuration = 200;  // Duration of a dot in milliseconds
 const int dashDuration = 600; // Duration of a dash in milliseconds
+const int gapDuration = 150;  // Short gap between signals for readability
 
-// Variables for timing control
-bool buzzerActive = false;    // Tracks whether the buzzer is currently active
-unsigned long startTime = 0;  // Stores the starting time for the buzzer
-int currentDuration = 0;      // Stores the duration of the current sound
+// Variables for tracking buzzer state
+bool buzzerActive = false;    // Flag to check if the buzzer is active
+unsigned long startTime = 0;  // Timestamp when the buzzer starts
+int currentDuration = 0;      // Stores the duration of the current Morse signal
+int DotHz = 800;
+int DashHz = 800;
 
 void setup() {
-    // Set pin modes
-    pinMode(buzzerPin, OUTPUT);        // Buzzer as output
-    pinMode(buttonDot, INPUT_PULLUP);  // Dot button as input with pull-up resistor
-    pinMode(buttonDash, INPUT_PULLUP); // Dash button as input with pull-up resistor
+    // Set pin modes for input and output
+    pinMode(buzzerPin, OUTPUT);        // Set buzzer pin as an output
+    pinMode(buttonDot, INPUT_PULLUP);  // Configure dot button as input with pull-up resistor
+    pinMode(buttonDash, INPUT_PULLUP); // Configure dash button as input with pull-up resistor
 }
 
 void loop() {
-    // Get the current time in milliseconds
+    // Get the current time in milliseconds for non-blocking execution
     unsigned long currentTime = millis();
 
-    // If dot button is pressed and the buzzer is not active, start a dot signal
+    // Check if the dot button is pressed and buzzer is not already active
     if (digitalRead(buttonDot) == LOW && !buzzerActive) {
-        buzzerActive = true;            // Mark the buzzer as active
-        startTime = currentTime;        // Store the time when the signal started
-        currentDuration = dotDuration;  // Set duration to dot time
-        tone(buzzerPin, 1000);          // Activate buzzer with 1000 Hz frequency
+        buzzerActive = true;            // Activate buzzer state tracking
+        startTime = currentTime;        // Store the start time of the signal
+        currentDuration = dotDuration;  // Set signal duration to dot timing
+        tone(buzzerPin, DotHz);           // Play tone at 800 Hz for dot
     }
 
-    // If dash button is pressed and the buzzer is not active, start a dash signal
+    // Check if the dash button is pressed and buzzer is not already active
     if (digitalRead(buttonDash) == LOW && !buzzerActive) {
-        buzzerActive = true;            // Mark the buzzer as active
-        startTime = currentTime;        // Store the time when the signal started
-        currentDuration = dashDuration; // Set duration to dash time
-        tone(buzzerPin, 1000);          // Activate buzzer with 1000 Hz frequency
+        buzzerActive = true;            // Activate buzzer state tracking
+        startTime = currentTime;        // Store the start time of the signal
+        currentDuration = dashDuration; // Set signal duration to dash timing
+        tone(buzzerPin, DashHz);           // Play tone at 800 Hz for dash
     }
 
-    // If buzzer is active and the time has passed, turn it off
+    // If buzzer is active and the duration has elapsed, stop the tone
     if (buzzerActive && currentTime - startTime >= currentDuration) {
-        noTone(buzzerPin);  // Stop buzzer
-        buzzerActive = false;  // Reset buzzer state
+        noTone(buzzerPin);  // Turn off buzzer
+        buzzerActive = false;  // Reset buzzer state to allow new signals
+        delay(gapDuration);  // Short gap before next signal for clarity
     }
 }
