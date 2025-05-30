@@ -39,7 +39,7 @@ bool dashMemory = false;
 void setup() {
   Serial.begin(9600);
   Serial.println();
-  Serial.println("CW KEYER by EKIN EFE GUNGOR   -   V_1.13");
+  Serial.println("CW KEYER by EKIN EFE GUNGOR   -   V_02.01");
   pinMode(powerLEDPin, OUTPUT);
   digitalWrite(powerLEDPin, HIGH);
 
@@ -52,11 +52,10 @@ void setup() {
 }
 
 void loop() {
-  int unit = 1200 / WPM;
-  updateWPM();          // Only if you're using a potentiometer
+  int ditTime = 1200 / WPM;
+  updateWPM();
   readPaddles();
 
-  // --- Iambic (Mode B) Support ---
   if (dotMemory && dashMemory) {
     playElement(true); delay(ditTime);
     playElement(false); delay(ditTime);
@@ -70,9 +69,8 @@ void loop() {
     dashMemory = false;
     playElement(false); delay(ditTime);
   }
-
-  // Handle button input, LCD updates, etc.
 }
+
 
 void readPaddles() {
   if (digitalRead(dotPin) == LOW) {
