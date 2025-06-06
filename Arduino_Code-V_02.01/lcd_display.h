@@ -5,7 +5,7 @@
 #include <Arduino.h>
 
 extern int WPM;
-extern int mode;
+extern int decoderMode;
 extern LiquidCrystal lcd;
 
 
@@ -17,18 +17,20 @@ void initLCD() {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("CW Keyer Ready");
+  lcd.setCursor(0, 1);
+  lcd.print("V-02.01");
 
-  // playStartupSound();  // now it's declared!
+  playCQ();
   delay(2000);
   lcd.clear();
 }
 
 void updateLCDMode(int mode) {
   lcd.setCursor(0, 0);
-  lcd.print("MODE: ");
-  if (mode == 0) lcd.print("CHAR ");
-  else if (mode == 1) lcd.print("MRS ");
-  else lcd.print("BOTH ");
+  // lcd.print("MODE: ");
+  if (mode == 0) lcd.print("BTH");       //Both
+  else if (mode == 1) lcd.print("CRS"); //Chars
+  else if (mode == 2) lcd.print("MRS");   //Mors
 }
 void updateWPMLevel(int WPM){
   byte level1[8] = {

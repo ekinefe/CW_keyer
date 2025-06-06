@@ -6,7 +6,7 @@
 extern void playDot();
 extern void playDash();
 
-void playStartupSound() {
+void playCQ() {
   playDot();
   playDash();
   playDot();

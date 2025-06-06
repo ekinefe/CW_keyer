@@ -45,32 +45,58 @@ void setup() {
 
   initLCD();
   initPaddles();
-  initButtons();
+  // initButtons();
   initTone();
-  playStartupSound();
+  playCQ();
 
 }
 
+// void loop() {
+//   int ditTime = 1200 / WPM;
+//   updateWPM();
+//   updateLCDMode(decoderMode);
+//   updateLCDText(sentenceBuffer);
+//   readPaddles();
+//   handlePaddles();
+//   updateModeButton();
+//   clear
+
+//   if (dotMemory && dashMemory) {
+//     playElement(true); delay(ditTime);
+//     playElement(false); delay(ditTime);
+//     dotMemory = dashMemory = false;
+//   } 
+//   else if (dotMemory) {
+//     dotMemory = false;
+//     playElement(true); delay(ditTime);
+//   } 
+//   else if (dashMemory) {
+//     dashMemory = false;
+//     playElement(false); delay(ditTime);
+//   }
+//   updateLCDText(sentenceBuffer);
+//   // printToCLI(sentenceBuffer);
+// }
 void loop() {
+  updateWPM();  // Updates global WPM based on potentiometer
+  updateModeButton();  // Checks mode toggle button
+  clearBufferButton(); // Checks and clears text buffer if clear button pressed
+
+  handlePaddles();  // Reads paddle input and plays tones
+
   int ditTime = 1200 / WPM;
-  updateWPM();
-  readPaddles();
 
-  if (dotMemory && dashMemory) {
-    playElement(true); delay(ditTime);
-    playElement(false); delay(ditTime);
-    dotMemory = dashMemory = false;
-  } 
-  else if (dotMemory) {
-    dotMemory = false;
-    playElement(true); delay(ditTime);
-  } 
-  else if (dashMemory) {
-    dashMemory = false;
-    playElement(false); delay(ditTime);
+  // Decode currentSymbol after 3 dot units of inactivity
+  if (millis() - lastInputTime > ditTime * 3 && currentSymbol.length() > 0) {
+    char decodedChar = decodeMorse(currentSymbol);
+    sentenceBuffer += decodedChar;
+    currentSymbol = "";
   }
-}
 
+  updateLCDMode(decoderMode);
+  updateLCDText(sentenceBuffer);
+  printToCLI(sentenceBuffer);  // optional
+}
 
 void readPaddles() {
   if (digitalRead(dotPin) == LOW) {

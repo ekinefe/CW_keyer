@@ -38,6 +38,7 @@ void initPaddles() {
 void handlePaddles() {
   unsigned long now = millis();
   int dotDuration = 1200 / WPM;
+  int dashDuration = dotDuration * 3;
 
   bool dotPressed = digitalRead(dotPin) == LOW;
   bool dashPressed = digitalRead(dashPin) == LOW;
@@ -52,7 +53,8 @@ void handlePaddles() {
     }
     else if (dashPressed && !dotPressed) {
       queuedElement = '-';
-      keyingLength = dotDuration * 3;
+      // keyingLength = dotDuration * 3;
+      keyingLength = dashDuration;
       playDash();
       currentSymbol += "-";
       startKeying(now);

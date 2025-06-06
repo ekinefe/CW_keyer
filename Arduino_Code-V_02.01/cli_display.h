@@ -5,7 +5,7 @@
 
 extern String sentenceBuffer;
 
-void updateCLIDisplay() {
+void updateCLIDisplay(const String& sentenceBuffer) {
   static String lastPrinted = "";
 
   if (sentenceBuffer != lastPrinted) {
@@ -14,6 +14,11 @@ void updateCLIDisplay() {
     lastPrinted = sentenceBuffer;
   }
 }
+
+void printToCLI(const String& sentenceBuffer) {
+  updateCLIDisplay(sentenceBuffer);
+}
+
 
 void printFinalToCLI() {
   Serial.println("Final Output:");
