@@ -1,120 +1,163 @@
 #include <LiquidCrystal.h>
-LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 #include "lcd_display.h"
-#include "cli_display.h"
-#include "decoder_both.h"      // or char_only / morse_only
-#include "paddle_input.h"
-#include "tone_control.h"
-#include "button_control.h"
-#include "wpm_control.h"
-#include "startup_sound.h"
+#include "decoder_both.h"  // You can replace this with your preferred decoder header
+#include "PinSettings.h"
+#include "Globals.h"
+#include "Encoder.h"
 
-extern int WPM;
-extern int buzzerPin;
-extern String sentenceBuffer;
+// ----------------------------
+//          CONSTANTS
+// ----------------------------
 
-///////////////////////////////
-//      GLOBAL VARIABLES     //
-///////////////////////////////
 
-// --- Pins ---
-int dotPin = A0;
-int dashPin = A1;
-int buzzerPin = 8;
-int morseLEDPin = 10;
-int powerLEDPin = 9;
-int functionButtonPin = 7;
-int clearButtonPin = 6;
-int wpmPotPin = A2;
+// ----------------------------
+//        BUFFERS / STATE
+// ----------------------------
 
-// --- State ---
-int WPM = 20;
-int decoderMode = 0;
-String sentenceBuffer = "";
-String currentSymbol = "";
-unsigned long lastInputTime = 0;
-bool dotMemory = false;
-bool dashMemory = false;
+String morseBuffer = "";      // Accumulate morse from paddles
+String sentenceBuffer = "";   // Final decoded sentence
+bool lastWasDot = false;      // For iambic paddle alternation
+bool justDecoded = false;     // Used to manage decoding flow
+int decoderMode = 0;          // 0=CHAR, 1=MORSE, 2=BOTH
 
+// Timing helpers
+unsigned long lastKeyTime = 0;
+unsigned long lastDecodeTime = 0;
+unsigned long lastModeSwitchTime = 0;
+
+// Paddle state machine
+enum KeyingState { IDLE, SENDING_DOT, SENDING_DASH, POST_DELAY };
+KeyingState keyingState = IDLE;
+unsigned long keyingStartTime = 0;
+
+char queuedElement = '\0';
+
+// ----------------------------
+//            SETUP
+// ----------------------------
 void setup() {
-  Serial.begin(9600);
-  Serial.println();
-  Serial.println("CW KEYER by EKIN EFE GUNGOR   -   V_02.01");
+  pinMode(dotPin, INPUT_PULLUP);
+  pinMode(dashPin, INPUT_PULLUP);
+  pinMode(buzzerPin, OUTPUT);
+  pinMode(morseLEDPin, OUTPUT);
   pinMode(powerLEDPin, OUTPUT);
+  pinMode(functionButtonPin, INPUT_PULLUP);
+  pinMode(clearButtonPin, INPUT_PULLUP);
+
   digitalWrite(powerLEDPin, HIGH);
 
+  Serial.begin(9600);
+  Serial.println("");
+  Serial.println("CW KEYER by Ekin Efe GUNGOR");
+
   initLCD();
-  initPaddles();
-  // initButtons();
-  initTone();
-  playCQ();
-
-}
-
-// void loop() {
-//   int ditTime = 1200 / WPM;
-//   updateWPM();
-//   updateLCDMode(decoderMode);
-//   updateLCDText(sentenceBuffer);
-//   readPaddles();
-//   handlePaddles();
-//   updateModeButton();
-//   clear
-
-//   if (dotMemory && dashMemory) {
-//     playElement(true); delay(ditTime);
-//     playElement(false); delay(ditTime);
-//     dotMemory = dashMemory = false;
-//   } 
-//   else if (dotMemory) {
-//     dotMemory = false;
-//     playElement(true); delay(ditTime);
-//   } 
-//   else if (dashMemory) {
-//     dashMemory = false;
-//     playElement(false); delay(ditTime);
-//   }
-//   updateLCDText(sentenceBuffer);
-//   // printToCLI(sentenceBuffer);
-// }
-void loop() {
-  updateWPM();  // Updates global WPM based on potentiometer
-  updateModeButton();  // Checks mode toggle button
-  clearBufferButton(); // Checks and clears text buffer if clear button pressed
-
-  handlePaddles();  // Reads paddle input and plays tones
-
-  int ditTime = 1200 / WPM;
-
-  // Decode currentSymbol after 3 dot units of inactivity
-  if (millis() - lastInputTime > ditTime * 3 && currentSymbol.length() > 0) {
-    char decodedChar = decodeMorse(currentSymbol);
-    sentenceBuffer += decodedChar;
-    currentSymbol = "";
-  }
-
   updateLCDMode(decoderMode);
-  updateLCDText(sentenceBuffer);
-  printToCLI(sentenceBuffer);  // optional
+  updateWPMLevel(WPM);
 }
 
-void readPaddles() {
-  if (digitalRead(dotPin) == LOW) {
-    dotMemory = true;
+// ----------------------------
+//           LOOP
+// ----------------------------
+void loop() {
+  unsigned long now = millis();
+
+  // --- Update WPM from Potentiometer ---
+  int potValue = analogRead(wpmPotPin);
+  WPM = map(potValue, 0, 1023, 5, 35);
+  dotDuration = 1200 / WPM;
+  static int lastWPM = -1;
+  if (WPM != lastWPM) {
+    updateLCDMode(decoderMode);
+    updateWPMLevel(WPM);
+    lastWPM = WPM;
   }
-  if (digitalRead(dashPin) == LOW) {
-    dashMemory = true;
+
+  // --- Switch Decoder Mode ---
+  if (digitalRead(functionButtonPin) == LOW && now - lastModeSwitchTime > 500) {
+    decoderMode = (decoderMode + 1) % 3;
+    updateLCDMode(decoderMode);
+    lastModeSwitchTime = now;
   }
+
+  // --- Paddle Input State Machine ---
+  bool dotPressed = digitalRead(dotPin) == LOW;
+  bool dashPressed = digitalRead(dashPin) == LOW;
+
+  if (keyingState == IDLE) {
+    if (dotPressed && !dashPressed) {
+      queuedElement = '.';
+      keyingLength = dotDuration;
+      playDot();
+      morseBuffer += ".";
+      startKeying(now);
+    } else if (dashPressed && !dotPressed) {
+      queuedElement = '-';
+      keyingLength = dotDuration * 3;
+      playDash();
+      morseBuffer += "-";
+      startKeying(now);
+    } else if (dotPressed && dashPressed) {
+      queuedElement = lastWasDot ? '-' : '.';
+      keyingLength = (queuedElement == '.') ? dotDuration : dotDuration * 3;
+      if (queuedElement == '.') playDot(); else playDash();
+      morseBuffer += queuedElement;
+      startKeying(now);
+      lastWasDot = !lastWasDot;
+    }
+  } else if (keyingState == SENDING_DOT || keyingState == SENDING_DASH) {
+    if (now - keyingStartTime >= keyingLength) {
+      stopTone();
+      keyingStartTime = now;
+      keyingState = POST_DELAY;
+      keyingLength = dotDuration;
+    }
+  } else if (keyingState == POST_DELAY && now - keyingStartTime >= keyingLength) {
+    keyingState = IDLE;
+  }
+
+  // --- Decode Morse ---
+  if (morseBuffer.length() > 0 && !dotPressed && !dashPressed &&
+      now - lastKeyTime >= dotDuration * 3 && !justDecoded) {
+    decodeMorse(morseBuffer);
+    morseBuffer = "";
+    justDecoded = true;
+    lastDecodeTime = now;
+    Serial.println(sentenceBuffer);
+    updateLCDText(sentenceBuffer);
+  }
+
+  // --- Word Gap Handling ---
+  if (justDecoded && !dotPressed && !dashPressed &&
+      now - lastDecodeTime >= dotDuration * 7) {
+    sentenceBuffer += " ";
+    justDecoded = false;
+    updateLCDText(sentenceBuffer);
+  }
+
+  // --- Clear Button ---
+  if (digitalRead(clearButtonPin) == LOW) {
+    sentenceBuffer = "";
+    morseBuffer = "";
+    justDecoded = false;
+    lcd.clear();
+    updateLCDMode(decoderMode);
+    updateWPMLevel(WPM);
+    updateLCDText(sentenceBuffer);
+    Serial.println("=== CLEARED ===");
+    delay(300);  // debounce
+  }
+
+  // --- Run Serial Encoder ---
+  handleEncoding(millis());
 }
 
-// void playElement(bool isDot) {
-//   int unit = 1200 / WPM;
-//   delay(unit);
-//   int duration = unit;
+// ----------------------------
+//      FUNCTION DEFINITIONS
+// ----------------------------
 
-//   digitalWrite(morseLEDPin, HIGH);
-//   tone(buzzerPin, 600);  // Or your `toneFreq`
-//   delay(duration);
-//   noTone(buzzerPin);
-//   digitalWrite(morseLEDPin, LOW);
-// }
+void startKeying(unsigned long now) {
+  keyingState = (queuedElement == '.') ? SENDING_DOT : SENDING_DASH;
+  keyingStartTime = now;
+  lastKeyTime = now;
+  justDecoded = false;
+}

@@ -1,11 +1,9 @@
 #ifndef DECODER_BOTH_H
 #define DECODER_BOTH_H
 
+#include "PinSettings.h"
+#include "Globals.h"
 #include <Arduino.h>
-
-// Declare external variables
-extern int decoderMode;
-extern String sentenceBuffer;
 
 char decodeMorse(const String& code) {
   struct MorseMap {
