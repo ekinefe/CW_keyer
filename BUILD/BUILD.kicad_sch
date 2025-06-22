@@ -3222,12 +3222,6 @@
 		(uuid "4f3fe44c-4370-4575-be82-9c2907d50c56")
 	)
 	(junction
-		(at 35.56 69.85)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "56e44dd8-189d-4d75-89d2-822fe6d5ea9c")
-	)
-	(junction
 		(at 33.02 153.67)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3280,6 +3274,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "8544749e-06ee-46cd-8cd4-b77ba591258d")
+	)
+	(junction
+		(at 34.29 69.85)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8ef91997-798b-4365-904f-f1a50dcee196")
 	)
 	(junction
 		(at 77.47 87.63)
@@ -3469,7 +3469,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 72.39) (xy 45.72 72.39)
+			(xy 180.34 72.39) (xy 53.34 72.39)
 		)
 		(stroke
 			(width 0)
@@ -3589,6 +3589,16 @@
 	)
 	(wire
 		(pts
+			(xy 53.34 80.01) (xy 49.53 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1a70d742-fc60-427b-b3ac-b91f74ae4f49")
+	)
+	(wire
+		(pts
 			(xy 109.22 116.84) (xy 109.22 113.03)
 		)
 		(stroke
@@ -3626,16 +3636,6 @@
 			(type default)
 		)
 		(uuid "1d9a4b3b-6401-4f29-865f-107e2e049c52")
-	)
-	(wire
-		(pts
-			(xy 35.56 69.85) (xy 46.99 69.85)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1ddcd669-4670-48b4-a708-350e080b7290")
 	)
 	(wire
 		(pts
@@ -3819,7 +3819,7 @@
 	)
 	(wire
 		(pts
-			(xy 29.21 69.85) (xy 35.56 69.85)
+			(xy 29.21 69.85) (xy 34.29 69.85)
 		)
 		(stroke
 			(width 0)
@@ -4456,16 +4456,6 @@
 			(type default)
 		)
 		(uuid "72a5d163-bdd2-4b33-8908-d39c0bb586e9")
-	)
-	(wire
-		(pts
-			(xy 35.56 80.01) (xy 35.56 69.85)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "73715e2c-c4d0-4122-beb7-e0bab65dee6f")
 	)
 	(wire
 		(pts
@@ -5149,6 +5139,16 @@
 	)
 	(wire
 		(pts
+			(xy 39.37 80.01) (xy 34.29 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cf1b5ee6-042e-475c-ac1f-db7adec2ceb1")
+	)
+	(wire
+		(pts
 			(xy 144.78 148.59) (xy 144.78 151.13)
 		)
 		(stroke
@@ -5259,6 +5259,16 @@
 	)
 	(wire
 		(pts
+			(xy 34.29 69.85) (xy 34.29 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ee821095-9e87-476d-8862-7bda0b4b83e9")
+	)
+	(wire
+		(pts
 			(xy 191.77 127) (xy 191.77 118.11)
 		)
 		(stroke
@@ -5289,7 +5299,17 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 72.39) (xy 45.72 80.01)
+			(xy 34.29 69.85) (xy 46.99 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f1e28901-8013-4e55-8029-2781fca2b0b1")
+	)
+	(wire
+		(pts
+			(xy 53.34 72.39) (xy 53.34 80.01)
 		)
 		(stroke
 			(width 0)
@@ -5362,7 +5382,7 @@
 				(type color)
 				(color 0 83 255 0.1)
 			)
-			(uuid 6badafdd-4d6b-47c6-a91c-3c2dcd7eca68)
+			(uuid 3622d374-8cd6-49c4-8d84-c32c85b2bcbf)
 		)
 	)
 	(symbol
@@ -6191,7 +6211,7 @@
 				)
 			)
 		)
-		(property "Value" "SW_Push"
+		(property "Value" "SW_Push-RESET"
 			(at 175.26 30.48 0)
 			(effects
 				(font
@@ -6243,7 +6263,7 @@
 	)
 	(symbol
 		(lib_id "Switch:SW_Push")
-		(at 40.64 80.01 0)
+		(at 44.45 80.01 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6252,15 +6272,15 @@
 		(fields_autoplaced yes)
 		(uuid "3e615570-e6ec-4fd5-a029-ac619ffc8258")
 		(property "Reference" "SW1"
-			(at 40.64 72.39 0)
+			(at 44.45 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "SW_Push"
-			(at 40.64 74.93 0)
+		(property "Value" "SW_Push-MODE"
+			(at 44.45 74.93 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6268,7 +6288,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 40.64 74.93 0)
+			(at 44.45 74.93 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6277,7 +6297,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 40.64 74.93 0)
+			(at 44.45 74.93 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6286,7 +6306,7 @@
 			)
 		)
 		(property "Description" "Push button switch, generic, two pins"
-			(at 40.64 80.01 0)
+			(at 44.45 80.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7567,7 +7587,7 @@
 				)
 			)
 		)
-		(property "Value" "SW_Push"
+		(property "Value" "SW_Push-CLEAR"
 			(at 52.07 64.77 0)
 			(effects
 				(font
