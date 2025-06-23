@@ -175,7 +175,7 @@ void updateLCDToneHz(int toneHz) {
   lcd.print("TONE Hz:");
   lcd.setCursor(0, 1);
   lcd.print(toneHz);
-  delay(1000);
+  delay(500);
 
   lcd.clear();
   updateLCDMode(decoderMode);
@@ -189,7 +189,7 @@ void clearLCDText () {
   updateWPMLevel(WPM);
   lcd.setCursor(0, 1);
   lcd.print("====CLEARED====");
-  delay(500);
+  delay(300);
   lcd.clear();
   updateLCDMode(decoderMode);
   updateWPMLevel(WPM);

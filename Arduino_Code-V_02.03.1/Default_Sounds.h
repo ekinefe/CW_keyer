@@ -15,7 +15,7 @@
 // ----------------------------------------------------------------------------
 
 void CQ(){
-    encodeBuffer = "CQ";         // what to send
+    encodeBuffer = "CQ ";         // what to send
     sentenceBuffer = encodeBuffer;
     charIndex      = 0;          // start at first character
     symbolIndex    = 0;          // start at first dot/dash
