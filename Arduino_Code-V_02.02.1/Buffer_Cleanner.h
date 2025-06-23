@@ -14,12 +14,14 @@ void CleanBuffer () {
     morseBuffer = "";       // RESER the morsse-Code buffer.
 
     // Informamtion output for CLI
-    Serial.println("sentenceBuffer: === CLEARED ===");
+    Serial.print("sentenceBuffer: === CLEARED ===");
+    Serial.print(" || ");
     Serial.println("morseBuffer: === CLEARED ===");
     
     delay(300);  // debounce
 
     // Update all the elemts on the LCD
+    clearLCDText();
     updateLCDMode(decoderMode);
     updateWPMLevel(WPM);
     updateLCDText(sentenceBuffer);

@@ -46,7 +46,7 @@ extern int keyingLength = 0;          // Length (ms) of the current dot or dash 
 // --- Morse audio parameters ---
 //=============================================
 extern int toneHz = 500;        // Frequency (Hz) for the Morse output tone
-int newToneHz;
+int newToneHz = 0;
 extern int lastToneHz = -1;
 extern int minHz = 400;
 extern int maxHz = 1500;

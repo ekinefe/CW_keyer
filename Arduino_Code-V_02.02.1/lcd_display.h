@@ -183,5 +183,18 @@ void updateLCDToneHz(int toneHz) {
   updateLCDText(sentenceBuffer);
 }
 
+void clearLCDText () {
+  lcd.clear();
+  updateLCDMode(decoderMode);
+  updateWPMLevel(WPM);
+  lcd.setCursor(0, 1);
+  lcd.print("====CLEARED====");
+  delay(500);
+  lcd.clear();
+  updateLCDMode(decoderMode);
+  updateWPMLevel(WPM);
+  updateLCDText(sentenceBuffer);
+}
+
 
 #endif

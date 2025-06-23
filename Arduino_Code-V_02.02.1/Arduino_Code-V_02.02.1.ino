@@ -95,6 +95,7 @@ void loop() {
   if (toneHz != lastToneHz){
     hzController();
   }
+
   // --- Paddle Input State Machine ---
   bool dotPressed = digitalRead(dotPin) == LOW;
   bool dashPressed = digitalRead(dashPin) == LOW;
