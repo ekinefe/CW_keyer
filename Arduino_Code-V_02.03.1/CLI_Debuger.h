@@ -4,9 +4,9 @@
 #include "Globals.h"
 
 void CLIDebuger (){
-    Serial.print (DefaultLocation);
-    Serial.print (":" );
-    Serial.println (DefaultMessage);
+    // Serial.print (DefaultLocation);
+    // Serial.print (":" );
+    // Serial.println (DefaultMessage);
 }
 
 #endif

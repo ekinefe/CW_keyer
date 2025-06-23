@@ -87,13 +87,12 @@ void loop() {
   }
 
   // --- Update WPM from Potentiometer ---
-  if (CheckHertz()){
-    hzController();
-  }
+  // if (WPM != lastWPM){
+    WPM_Controller();
+  // }
 
   // --- Update toneHz from Potentiometer ---
-  // Serial.println(analogRead(HzPotPin));
-  if (toneHz != lastToneHz){
+  if (CheckHertz()){
     hzController();
   }
 
